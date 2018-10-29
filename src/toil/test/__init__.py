@@ -22,7 +22,6 @@ import os
 import re
 import shutil
 import signal
-from toil import subprocess
 import tempfile
 import threading
 import time
