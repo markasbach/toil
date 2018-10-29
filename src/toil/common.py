@@ -596,7 +596,7 @@ def addOptions(parser, config=Config()):
         raise RuntimeError("Unanticipated class passed to addOptions(), %s. Expecting "
                            "argparse.ArgumentParser" % parser.__class__)
 
-def getNodeID(extraIDFiles=None):
+def getNodeID():
     """
     Return unique ID of the current node (host).
     Tries several methods until success. The returned ID should be identical across calls from different processes on
@@ -607,51 +607,45 @@ def getNodeID(extraIDFiles=None):
     /proc/sys/kernel/random/boot_id will be tried prior to that. If uuid.getnode() is reached, it will be called twice,
     and exception raised if the values are not identical.
 
-    :param list extraIDFiles: Optional list of additional file names to try reading node ID before trying default
     methods. ID should be a single word (no spaces) on the first line of the file.
     """
-    if extraIDFiles is None:
-        extraIDFiles = []
-    idSourceFiles = extraIDFiles + ["/var/lib/dbus/machine-id", "/proc/sys/kernel/random/boot_id"]
-    for idSourceFile in idSourceFiles:
+    for idSourceFile in ["/var/lib/dbus/machine-id", "/proc/sys/kernel/random/boot_id"]:
         if os.path.exists(idSourceFile):
             try:
                 with open(idSourceFile, "r") as inp:
                     nodeID = inp.readline().strip()
             except EnvironmentError:
-                logger.warning((
-                               "Exception when trying to read ID file {}. Will try next method to get node ID"). \
-                               format(idSourceFile), exc_info=True)
+                logger.warning(('Exception when trying to read ID file {}.  '
+                                'Will try next method to get node ID').format(idSourceFile), exc_info=True)
             else:
                 if len(nodeID.split()) == 1:
                     logger.debug("Obtained node ID {} from file {}".format(nodeID, idSourceFile))
                     break
                 else:
-                    logger.warning((
-                                   "Node ID {} from file {} contains spaces. Will try next method to get node ID"). \
-                                   format(nodeID, idSourceFile))
+                    logger.warning(('Node ID {} from file {} contains spaces.  '
+                                    'Will try next method to get node ID').format(nodeID, idSourceFile))
     else:
         nodeIDs = []
-        for i_call in range(2):
+        for _ in range(2):
             nodeID = str(uuid.getnode()).strip()
             if len(nodeID.split()) == 1:
                 nodeIDs.append(nodeID)
             else:
-                logger.warning("Node ID {} from uuid.getnode() contains spaces".format(nodeID))
-        nodeID = ""
+                logger.warning('Node ID {} from uuid.getnode() contains spaces.'.format(nodeID))
+        nodeID = ''
         if len(nodeIDs) == 2:
             if nodeIDs[0] == nodeIDs[1]:
                 nodeID = nodeIDs[0]
             else:
                 logger.warning(
-                    "Different node IDs {} received from repeated calls to uuid.getnode(). You should use " \
+                    "Different node IDs {} received from repeated calls to uuid.getnode(). You should use "
                     "another method to generate node ID.".format(nodeIDs))
 
             logger.debug("Obtained node ID {} from uuid.getnode()".format(nodeID))
     if not nodeID:
         logger.warning(
-            "Failed to generate stable node ID, returning empty string. If you see this message with a " \
-            "work dir on a shared file system when using workers running on multiple nodes, you might experience " \
+            "Failed to generate stable node ID, returning empty string. If you see this message with a "
+            "work dir on a shared file system when using workers running on multiple nodes, you might experience "
             "cryptic job failures")
     return nodeID
 
@@ -1347,6 +1341,7 @@ def getFileSystemSize(dirPath):
     freeSpace = diskStats.f_frsize * diskStats.f_bavail
     diskSize = diskStats.f_frsize * diskStats.f_blocks
     return freeSpace, diskSize
+
 
 def safeUnpickleFromStream(stream):
     string = stream.read()

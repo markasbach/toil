@@ -1,3 +1,4 @@
+# Copyright (C) 2015-2018 Regents of the University of California
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -10,12 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from __future__ import absolute_import
-from builtins import str
 from builtins import range
 from toil.common import getNodeID
 from toil.test import ToilTest
+
 
 class GetNodeIDTest(ToilTest):
     def testIDStability(self):
@@ -25,12 +25,3 @@ class GetNodeIDTest(ToilTest):
             if i > 0:
                 self.assertEquals(nodeID,prevNodeID)
             prevNodeID = nodeID
-
-    def testSkipNonExistingFile(self):
-        import uuid, os
-        no_file = "/etc/totally_non_existing_"+str(uuid.uuid4())
-        self.assertFalse(os.path.exists(no_file), "Could not make up a missing file name")
-        nodeID1 = getNodeID([no_file])
-        nodeID2 = getNodeID()
-        self.assertEquals(nodeID1,nodeID2)
-
