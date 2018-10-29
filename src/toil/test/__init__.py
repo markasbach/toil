@@ -606,11 +606,11 @@ def timeLimit(seconds):
 
     :param seconds: maximum allowable time, in seconds
     >>> import time
-    >>> with timeLimit(5):
-    ...    time.sleep(4)
+    >>> with timeLimit(1):
+    ...    time.sleep(0.5)
     >>> import time
-    >>> with timeLimit(5):
-    ...    time.sleep(6)
+    >>> with timeLimit(0.5):
+    ...    time.sleep(1)
     Traceback (most recent call last):
         ...
     RuntimeError: Timed out
