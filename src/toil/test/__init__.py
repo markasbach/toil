@@ -594,8 +594,6 @@ def slow(test_item):
         return unittest.skip(
             'Skipped because TOIL_TEST_QUICK is "True"')(test_item)
 
-methodNamePartRegex = re.compile('^[a-zA-Z_0-9]+$')
-
 
 @contextmanager
 def timeLimit(seconds):
@@ -626,9 +624,6 @@ def timeLimit(seconds):
         yield
     finally:
         signal.alarm(0)
-
-
-# FIXME: move to bd2k-python-lib
 
 
 def make_tests(generalMethod, targetClass, **kwargs):
@@ -681,6 +676,9 @@ def make_tests(generalMethod, targetClass, **kwargs):
     False
 
     """
+
+    methodNamePartRegex = re.compile('^[a-zA-Z_0-9]+$')
+
     def pop(d):
         """
         Pops an arbitrary key value pair from a given dict.
